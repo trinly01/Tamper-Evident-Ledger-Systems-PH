@@ -46,6 +46,7 @@ This is not about "blockchaining the budget" - it's about creating a comprehensi
 - [Repository Structure](#repository-structure)
 - [Roadmap](#implementation-roadmap)
 - [Security Considerations](#security-considerations)
+- [Data Sovereignty & Residency](#data-sovereignty)
 - [Legal Framework](#legal-framework)
 - [FAQ](#faq)
 - [References](#references)
@@ -593,6 +594,16 @@ Note: Drafting style and section numbering should align with the enrolled versio
 - **Disaster Recovery**: Redundant systems and backup procedures
 - **Data Privacy Compliance**: Full adherence to RA 10173
 - **Multi-Factor Authentication**: Enhanced access controls
+
+<a id="data-sovereignty"></a>
+### 🗺️ Data Sovereignty & Residency
+- National systems (budget, tax, treasury) must operate on infrastructure under Philippine jurisdiction and control
+- Prohibit mandatory reliance on foreign-controlled public chains for core records; use permissioned, locally governed nodes
+- Store full records in government-managed databases; anchor only hashes to a state-governed ledger
+- Require data residency per DICT Cloud First and applicable regulations; document locations, custodians, and failover sites
+- Disclose any third-party chain dependencies; provide exit/migration plans and on-prem verification mirrors
+
+References: DICT Cloud First Policy (DC 2020-002): https://dict.gov.ph/cloud-first-policy/
 
 <a id="legal-framework"></a>
 ### 📚 Legal Framework
