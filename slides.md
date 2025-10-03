@@ -16,6 +16,14 @@ Notes:
 
 ---
 
+## Objectives & Scope
+
+- Objectives: trace every peso end-to-end; real-time oversight; citizen-usable transparency; deterrence
+- Scope: DBM (appropriations/allotments), PhilGEPS (procurement), Agencies (IAR/Billing/OBR/DV), BTr (cash release), COA (audit)
+- Out of scope: storing raw documents on-chain; foreign-controlled public chains for core records
+
+---
+
 ## The Problem (Today)
 
 - Opaque amendments; late audits; editable logs
@@ -113,6 +121,14 @@ Notes:
 - Ledger SOC; 5+ validator nodes (DICT, COA, DBM, academe, auditor)
 - HSM key management; PNPKI-qualified signing
 - DR: RTO 4h / RPO 15m; red-team and audits
+
+---
+
+## Data Sovereignty & Residency
+
+- Operate on PH-jurisdiction infrastructure; permissioned, locally governed nodes
+- Keep full records in government databases; anchor hashes to a state-governed ledger
+- Enforce DICT Cloud First residency; disclose third-party dependencies; maintain exit plans
 
 ---
 
