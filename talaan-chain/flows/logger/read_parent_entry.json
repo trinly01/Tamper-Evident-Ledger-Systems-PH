@@ -1,0 +1,10 @@
+{
+  "collection": "talaan_chain",
+  "query": {
+    "sort": ["-created_at"],
+    "limit": 1,
+    "fields": ["id", "current_hash"]
+  },
+  "emitEvents": false
+}
+

@@ -1,0 +1,8 @@
+{
+  "talaan_id": "{{$validate_and_verify.entry.talaan_id}}",
+  "parent_id": "{{$validate_and_verify.entry.parent_id}}",
+  "parent_hash": "{{$validate_and_verify.entry.parent_hash}}",
+  "current_hash": "{{$validate_and_verify.entry.current_hash}}",
+  "payload": "{{$validate_and_verify.entry.payload}}"
+}
+

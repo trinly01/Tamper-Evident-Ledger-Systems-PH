@@ -1,0 +1,11 @@
+{
+  "collection": "talaan_chain",
+  "payload": {
+    "parent_id": "{{$generate_chain_entry.parent_id}}",
+    "parent_hash": "{{$generate_chain_entry.parent_hash}}",
+    "current_hash": "{{$generate_chain_entry.current_hash}}",
+    "payload": "{{$generate_chain_entry.payload}}"
+  },
+  "emitEvents": false
+}
+

@@ -1,0 +1,297 @@
+{
+  "collection": "talaan_incidents",
+  "meta": {
+    "collection": "talaan_incidents",
+    "icon": "warning",
+    "note": "Tracks chain validation failures and integrity issues",
+    "display_template": "{{incident_type}} - {{severity}} - {{detected_at}}",
+    "hidden": false,
+    "singleton": false,
+    "translations": null,
+    "archive_field": null,
+    "archive_app_filter": true,
+    "archive_value": null,
+    "unarchive_value": null,
+    "sort_field": "detected_at"
+  },
+  "schema": {
+    "name": "talaan_incidents",
+    "comment": "Tamper-evident ledger chain validation incidents"
+  },
+  "fields": [
+    {
+      "field": "id",
+      "type": "uuid",
+      "schema": {
+        "is_primary_key": true,
+        "has_auto_increment": false
+      },
+      "meta": {
+        "interface": "input",
+        "readonly": true,
+        "hidden": true
+      }
+    },
+    {
+      "field": "incident_type",
+      "type": "string",
+      "schema": {
+        "default_value": "chain_validation_failure"
+      },
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            {
+              "text": "Chain Validation Failure",
+              "value": "chain_validation_failure"
+            },
+            {
+              "text": "Hash Mismatch",
+              "value": "hash_mismatch"
+            },
+            {
+              "text": "Missing Parent",
+              "value": "missing_parent"
+            },
+            {
+              "text": "Invalid Genesis",
+              "value": "invalid_genesis"
+            }
+          ]
+        },
+        "width": "half",
+        "required": true
+      }
+    },
+    {
+      "field": "severity",
+      "type": "string",
+      "schema": {
+        "default_value": "critical"
+      },
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            {
+              "text": "Critical",
+              "value": "critical"
+            },
+            {
+              "text": "High",
+              "value": "high"
+            },
+            {
+              "text": "Medium",
+              "value": "medium"
+            },
+            {
+              "text": "Low",
+              "value": "low"
+            }
+          ]
+        },
+        "width": "half",
+        "required": true,
+        "display": "labels",
+        "display_options": {
+          "choices": [
+            {
+              "text": "Critical",
+              "value": "critical",
+              "foreground": "#FFFFFF",
+              "background": "#DC3545"
+            },
+            {
+              "text": "High",
+              "value": "high",
+              "foreground": "#FFFFFF",
+              "background": "#FD7E14"
+            },
+            {
+              "text": "Medium",
+              "value": "medium",
+              "foreground": "#000000",
+              "background": "#FFC107"
+            },
+            {
+              "text": "Low",
+              "value": "low",
+              "foreground": "#000000",
+              "background": "#6C757D"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "field": "detected_at",
+      "type": "timestamp",
+      "meta": {
+        "interface": "datetime",
+        "display": "datetime",
+        "width": "half",
+        "required": true
+      }
+    },
+    {
+      "field": "validation_status",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "width": "half",
+        "note": "Status returned from validator: valid, invalid, or empty"
+      }
+    },
+    {
+      "field": "summary",
+      "type": "text",
+      "meta": {
+        "interface": "input-multiline",
+        "width": "full",
+        "note": "Human-readable summary from validator"
+      }
+    },
+    {
+      "field": "invalid_count",
+      "type": "integer",
+      "meta": {
+        "interface": "input",
+        "width": "half",
+        "note": "Number of invalid entries detected"
+      }
+    },
+    {
+      "field": "depth_reached",
+      "type": "integer",
+      "meta": {
+        "interface": "input",
+        "width": "half",
+        "note": "How many parent levels were validated"
+      }
+    },
+    {
+      "field": "invalid_entries",
+      "type": "json",
+      "meta": {
+        "interface": "input-code",
+        "options": {
+          "language": "json",
+          "lineNumber": true
+        },
+        "width": "full",
+        "note": "Full validation error details"
+      }
+    },
+    {
+      "field": "status",
+      "type": "string",
+      "schema": {
+        "default_value": "open"
+      },
+      "meta": {
+        "interface": "select-dropdown",
+        "options": {
+          "choices": [
+            {
+              "text": "Open",
+              "value": "open"
+            },
+            {
+              "text": "Investigating",
+              "value": "investigating"
+            },
+            {
+              "text": "Resolved",
+              "value": "resolved"
+            },
+            {
+              "text": "False Positive",
+              "value": "false_positive"
+            }
+          ]
+        },
+        "width": "half",
+        "required": true,
+        "display": "labels",
+        "display_options": {
+          "choices": [
+            {
+              "text": "Open",
+              "value": "open",
+              "foreground": "#FFFFFF",
+              "background": "#DC3545"
+            },
+            {
+              "text": "Investigating",
+              "value": "investigating",
+              "foreground": "#000000",
+              "background": "#FFC107"
+            },
+            {
+              "text": "Resolved",
+              "value": "resolved",
+              "foreground": "#FFFFFF",
+              "background": "#28A745"
+            },
+            {
+              "text": "False Positive",
+              "value": "false_positive",
+              "foreground": "#000000",
+              "background": "#6C757D"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "field": "assigned_to",
+      "type": "string",
+      "meta": {
+        "interface": "input",
+        "width": "half",
+        "note": "Team or person investigating (or use user relation)"
+      }
+    },
+    {
+      "field": "resolved_at",
+      "type": "timestamp",
+      "meta": {
+        "interface": "datetime",
+        "display": "datetime",
+        "width": "half"
+      }
+    },
+    {
+      "field": "resolution_notes",
+      "type": "text",
+      "meta": {
+        "interface": "input-rich-text-md",
+        "width": "full",
+        "note": "Explanation of how the incident was resolved"
+      }
+    },
+    {
+      "field": "created_at",
+      "type": "timestamp",
+      "meta": {
+        "interface": "datetime",
+        "readonly": true,
+        "hidden": true,
+        "special": ["date-created"]
+      }
+    },
+    {
+      "field": "updated_at",
+      "type": "timestamp",
+      "meta": {
+        "interface": "datetime",
+        "readonly": true,
+        "hidden": true,
+        "special": ["date-updated"]
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,17 @@
+{
+  "operation": "condition",
+  "name": "check_status",
+  "type": "condition",
+  "options": {
+    "filter": {
+      "$validate_script": {
+        "status": {
+          "_eq": "valid"
+        }
+      }
+    }
+  },
+  "resolve": "log_success",
+  "reject": "log_error"
+}
+
