@@ -143,6 +143,7 @@ graph TD
 ## 🔒 Security Features
 
 ✅ **Tamper-Evident** - Any modification breaks the hash chain  
+✅ **JWT Authentication** - Secure node-to-node communication with signed tokens  
 ✅ **Deterministic Hashing** - Same data always produces same hash  
 ✅ **Tree Structure** - High concurrency without race conditions  
 ✅ **Fast Validation** - Multiple strategies for different needs  
@@ -155,17 +156,24 @@ graph TD
 ```
 talaan-chain/
 ├── README.md                      # This file
-├── COLLECTION_SCHEMA.md           # Directus collection setup guide
+├── COLLECTION_SCHEMA.md           # Single-node collection setup
+├── COLLECTION_SCHEMA_MULTINODE.md # Multi-node collection setup
 ├── ARCHITECTURE.md                # Complete technical documentation
+├── MULTI_NODE_ARCHITECTURE.md     # Distributed ledger guide
 ├── VALIDATION_STRATEGIES.md       # Validation approaches
 ├── flows/                         # Directus flows
 │   ├── README.md                  # Flows overview
-│   ├── logger/                    # Chain creation flow
+│   ├── logger/                    # Chain creation flow (8 ops with JWT)
 │   │   ├── README.md
 │   │   ├── generate_chain_entry.js
+│   │   ├── generate_chain_entry_multinode.js
 │   │   ├── read_parent_entry.json
 │   │   └── create_chain_entry.json
-│   └── validator/                 # Validation flows
+│   ├── mirror/                    # Replication receiver (7 ops with JWT)
+│   │   ├── README.md
+│   │   ├── validate_and_verify.js
+│   │   └── create_mirror_entry.json
+│   └── validator/                 # Validation flows (5 ops)
 │       ├── README.md
 │       ├── validate_latest_chain.js
 │       ├── validate_latest_chain_enhanced.js
@@ -177,7 +185,7 @@ talaan-chain/
 │       ├── condition_examples.json
 │       └── ERROR_CODES.md
 └── utils/
-   └── hashJson.ts                # TypeScript hash utility
+    └── hashJson.ts                # TypeScript hash utility
 ```
 
 ---

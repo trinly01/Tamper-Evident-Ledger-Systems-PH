@@ -28,8 +28,9 @@ This directory contains the scripts and configurations for the Talaan Chain Dire
 ### Complete Flow Guides
 
 📖 **[Talaan Chain Logger](logger/README.md)** - Chain creation & replication flow  
-- 6 operations (with webhook)
+- 8 operations (with JWT signing + webhook)
 - Automatic event logging
+- JWT-authenticated replication
 - Multi-node replication support
 - Performance: < 100ms per event
 
@@ -40,8 +41,9 @@ This directory contains the scripts and configurations for the Talaan Chain Dire
 - Performance: < 0.5 sec, 1 DB query
 
 📖 **[Talaan Mirror Receiver](mirror/README.md)** - Replication receiver flow  
-- 6 operations
+- 7 operations (with JWT verification)
 - Webhook-triggered
+- JWT authentication
 - Validates & stores replicated entries
 - Multi-node architecture support
 

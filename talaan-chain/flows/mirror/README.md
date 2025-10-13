@@ -20,12 +20,12 @@ Talaan Chain Logger                      Talaan Mirror Receiver
 ## Flow Overview
 
 ```
-Webhook → Validate & Verify → Condition → Create Entry → Read Entry
-                                    ↓
-                              Throw Error (if invalid)
+Webhook → Verify JWT → Validate & Verify → Condition → Create Entry → Read Entry
+             ↓                                  ↓
+        Unauthorized                      Throw Error (if invalid)
 ```
 
-**Note:** Uses `throw_error` for invalid entries instead of webhook responses.
+**Security:** JWT authentication ensures only authorized nodes can send entries.
 
 ---
 
@@ -39,7 +39,29 @@ Webhook → Validate & Verify → Condition → Create Entry → Read Entry
 
 ---
 
-### 2. **Validate & Verify Hash** (Combined Script)
+### 2. **Verify JWT** (JSON Web Token)
+- **Key:** `verify_jwt`
+- **Operation:** `verify`
+- **Purpose:** Authenticates incoming requests from other nodes
+
+**What it does:** Verifies the JWT token from the request to ensure it comes from an authorized node.
+
+**Security Benefits:**
+- ✅ Only authorized nodes can send entries
+- ✅ Tamper-proof token (cryptographically signed)
+- ✅ Token expiration prevents replay attacks
+- ✅ Audit trail (who sent the entry)
+
+**Configuration:**
+- Secret: Shared across all nodes (configured in Directus settings)
+- Algorithm: HS256 (default)
+- Token location: Authorization header or request body
+
+**Important:** All nodes must share the same JWT secret!
+
+---
+
+### 3. **Validate & Verify Hash** (Combined Script)
 - **Key:** `validate_and_verify`
 - **File:** `validate_and_verify.js`
 - **Purpose:** Validates payload structure AND verifies hash in one step
@@ -53,7 +75,7 @@ Webhook → Validate & Verify → Condition → Create Entry → Read Entry
 
 ---
 
-### 3. **Condition: Valid?**
+### 4. **Condition: Valid?**
 - **Key:** `is_valid`
 - **Rule:** `{{$validate_and_verify.valid}} == true`
 - **TRUE:** Create mirror entry
@@ -61,7 +83,7 @@ Webhook → Validate & Verify → Condition → Create Entry → Read Entry
 
 ---
 
-### 4. **Create Mirror Entry** (Create Data)
+### 5. **Create Mirror Entry** (Create Data)
 - **Key:** `create_chain_entry`
 - **Collection:** `talaan_mirror`
 - **Config:** `create_mirror_entry.json`
@@ -72,7 +94,7 @@ Webhook → Validate & Verify → Condition → Create Entry → Read Entry
 
 ---
 
-### 5. **Throw Error** (Throw Error)
+### 6. **Throw Error** (Throw Error)
 - **Key:** `throw_error`
 - **Error Code:** `INVALID_CHAIN`
 - **HTTP Status Code:** `500`
@@ -83,7 +105,7 @@ Webhook → Validate & Verify → Condition → Create Entry → Read Entry
 
 ---
 
-### 6. **Read Created Entry** (Read Data)
+### 7. **Read Created Entry** (Read Data)
 - **Key:** `read_created_entry`
 - **Collection:** `talaan_mirror`
 - **Purpose:** Read back the created entry for confirmation
@@ -109,27 +131,29 @@ Webhook → Validate & Verify → Condition → Create Entry → Read Entry
 
 ```mermaid
 graph TD
-    A[Webhook POST<br/>http://localhost:8055/f...] --> B[validate_and_verify<br/>Run Script]
-    B --> C{Condition<br/>is_valid?}
-    C -->|FALSE| D[throw_error<br/>INVALID_CHAIN / 500]
-    C -->|TRUE| E[create_chain_entry<br/>Create Data<br/>talaan_mirror]
-    E --> F[read_created_entry<br/>Read Data<br/>talaan_mirror]
+    A[Webhook POST<br/>http://localhost:8055/f...] --> B[verify_jwt<br/>JWT Verification<br/>Operation: verify]
+    B --> C[validate_and_verify<br/>Run Script]
+    C --> D{Condition<br/>is_valid?}
+    D -->|FALSE| E[throw_error<br/>INVALID_CHAIN / 500]
+    D -->|TRUE| F[create_chain_entry<br/>Create Data<br/>talaan_mirror]
+    F --> G[read_created_entry<br/>Read Data<br/>talaan_mirror]
     
     style A fill:#e1f5ff
-    style B fill:#fff3cd
+    style B fill:#d1ecf1
     style C fill:#fff3cd
-    style D fill:#f8d7da
-    style E fill:#d4edda
-    style F fill:#d1ecf1
+    style D fill:#fff3cd
+    style E fill:#f8d7da
+    style F fill:#d4edda
+    style G fill:#d1ecf1
 ```
 
 **Key:** 
 - ✅ Green = Success/Data operations
 - ❌ Red = Error path
-- 🔵 Blue = External trigger
+- 🔵 Blue = External trigger/Authentication
 - ⚠️ Yellow = Processing/Validation
 
-**6 operations total** - Webhook receiver with validation and error handling.
+**7 operations total** - Webhook receiver with JWT authentication, validation, and error handling.
 
 ---
 

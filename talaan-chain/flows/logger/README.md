@@ -26,30 +26,31 @@ flowchart TD
     C[generate_chain_entry<br/>Run Script<br/>Generate hash & payload]
     D[create_chain_entry<br/>Create Data<br/>Insert to talaan_chain]
     E[read_created_entry<br/>Read Data<br/>Get created entry with talaan_id]
-    F1[send_to_node_2<br/>Webhook/URL<br/>POST to Node 2 mirror receiver]
-    F2[send_to_node_3<br/>Webhook/URL<br/>POST to Node 3 mirror receiver]
-    G[log_success<br/>Log to Console<br/>Confirmation]
+    F[sign_jwt<br/>JWT Sign<br/>Operation: sign]
+    G[send_chain_entry<br/>Webhook/URL<br/>POST to other nodes]
+    H[log_success<br/>Log to Console<br/>Confirmation]
     
     A --> B
     B --> C
     C --> D
     D --> E
-    E --> F1
-    E --> F2
-    F1 --> G
-    F2 --> G
+    E --> F
+    F --> G
+    G --> H
     
     style A fill:#e1f5ff,stroke:#0066cc
     style B fill:#f0f0f0,stroke:#666
     style C fill:#d4edda,stroke:#28a745
     style D fill:#fff3cd,stroke:#ffc107
     style E fill:#f0f0f0,stroke:#666
-    style F1 fill:#e1f5ff,stroke:#0066cc
-    style F2 fill:#e1f5ff,stroke:#0066cc
-    style G fill:#f0f0f0,stroke:#666
+    style F fill:#d1ecf1,stroke:#0066cc
+    style G fill:#e1f5ff,stroke:#0066cc
+    style H fill:#f0f0f0,stroke:#666
 ```
 
-**Multi-Node:** Operations E, F1, F2 are for distributed ledger. Skip if single-node.
+**Multi-Node:** Operations E, F, G are for distributed ledger. Skip if single-node.
+
+**Security:** JWT signing (Operation F) ensures authenticated communication between nodes.
 
 ---
 
@@ -161,7 +162,42 @@ flowchart TD
 
 ---
 
-### Operation 6: `send_chain_entry` (Multi-Node)
+### Operation 6: `sign_jwt` (Multi-Node)
+
+**Type:** JSON Web Token (JWT)  
+**Key:** `sign_jwt`  
+**Operation:** `sign`  
+**Purpose:** Signs the entry data with JWT for authenticated communication
+
+**What it does:** Creates a cryptographically signed JWT token containing the entry data to be sent to other nodes.
+
+**Payload to sign:**
+```json
+{
+  "node_id": "manila",
+  "entry": "{{$read_created_entry[0]}}"
+}
+```
+
+**Configuration:**
+- Secret: Shared across all nodes (configured in Directus settings)
+- Algorithm: HS256 (default)
+- Expiration: 60 seconds (recommended for near-instant replication)
+
+**Security Benefits:**
+- ✅ Only nodes with correct secret can generate valid tokens
+- ✅ Tamper-proof (signature verification)
+- ✅ Token expiration prevents replay attacks
+- ✅ Recipient can verify authenticity
+
+**Important:** 
+- All nodes must share the same JWT secret
+- Keep secret in environment variables, not in code
+- Rotate secret periodically for security
+
+---
+
+### Operation 7: `send_chain_entry` (Multi-Node)
 
 **Type:** Webhook / Request URL  
 **Key:** `send_chain_entry`  
@@ -190,6 +226,15 @@ https://node-3.example.com/flows/trigger/[MIRROR-RECEIVER-FLOW-ID]
 
 **Body:**
 ```json
+"{{$sign_jwt}}"
+```
+
+**Or if JWT is in header:**
+```
+Headers:
+  Authorization: Bearer {{$sign_jwt}}
+
+Body:
 {
   "talaan_id": "{{$read_created_entry[0].talaan_id}}",
   "parent_id": "{{$read_created_entry[0].parent_id}}",
@@ -199,10 +244,11 @@ https://node-3.example.com/flows/trigger/[MIRROR-RECEIVER-FLOW-ID]
 }
 ```
 
-**What it does:** Sends the created entry to other nodes' Mirror Receiver webhook for replication.
+**What it does:** Sends the JWT-signed entry to other nodes' Mirror Receiver webhook for secure replication.
 
 **Important:**
 - ✅ Use `talaan_id` (global ID), NOT `id` (database ID)
+- ✅ JWT token provides authentication
 - ✅ Add one webhook operation per remote node
 - ✅ Replace URL with actual node addresses
 - ⚠️ Don't send to localhost (that's yourself!)
@@ -215,7 +261,7 @@ https://node-3.example.com/flows/trigger/[MIRROR-RECEIVER-FLOW-ID]
 
 ---
 
-### Operation 7: `log_success`
+### Operation 8: `log_success`
 
 **Type:** Log to Console  
 **Key:** `log_success`  
