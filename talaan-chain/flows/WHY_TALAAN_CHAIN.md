@@ -635,12 +635,18 @@ A: Yes, via the Item Validator API. You can make this fully public or restrict t
 **Q: Does this work with any database?**  
 A: Yes, any database that supports triggers and JSON fields. Tested with PostgreSQL, MySQL, and MariaDB.
 
----
-
-## License
-
-MIT License - See [LICENSE](LICENSE) file
-
----
-
 **Built for organizations that need blockchain-level integrity without blockchain complexity.**
+
+
+🔥 Why Talaan Chain? 🔗
+Because corruption thrives in the dark — and we’re bringing transparency to light. 💡
+
+Every log. Every change. Every action.
+📜 Recorded. Chained. Tamperproof.
+
+No more deleted evidence. No more excuses. 🚫
+Just truth, accountability, and trust. 💪
+
+#TalaanChain #TransparencyTech #AntiCorruption #AuditRevolution #DataIntegrity
+
+
