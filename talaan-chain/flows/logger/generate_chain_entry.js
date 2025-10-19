@@ -1,5 +1,5 @@
 /**
- * Directus Flow Operation: generate_chain_entry
+ * talaan_chain_system Flow Operation: generate_chain_entry
  * 
  * Purpose: Generate hash and build payload for chain entry
  * Input: $trigger, $accountability, read_parent_entry

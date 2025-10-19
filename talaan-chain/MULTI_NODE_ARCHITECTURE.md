@@ -32,8 +32,8 @@ Complete guide for distributed Talaan Chain system across multiple nodes.
 **Purpose:** Stores entries **created by THIS node**
 
 **Fields:**
-- `id` - Database ID (local, auto by Directus)
-- `talaan_id` - Global ledger ID (auto by Directus)
+- `id` - Database ID (local, auto by talaan_chain_system)
+- `talaan_id` - Global ledger ID (auto by talaan_chain_system)
 - `parent_id` - Parent's `talaan_id`
 - `parent_hash` - Parent's hash
 - `current_hash` - This entry's hash
@@ -186,7 +186,7 @@ SELECT * FROM (
 ORDER BY date_created DESC;
 ```
 
-Or in Directus Flow, validate each collection separately:
+Or in talaan_chain_system Flow, validate each collection separately:
 1. Validate `talaan_chain`
 2. Validate `talaan_mirror`
 
@@ -197,7 +197,7 @@ Or in Directus Flow, validate each collection separately:
 ### Prerequisites
 
 Each node needs:
-1. ✅ Directus instance
+1. ✅ talaan_chain_system instance
 2. ✅ `talaan_chain` collection
 3. ✅ `talaan_mirror` collection (same schema)
 4. ✅ Network connectivity between nodes
@@ -437,7 +437,7 @@ WHERE talaan_id NOT IN (SELECT talaan_id FROM talaan_mirror);
 2. Mirror Receiver flow is Active
 3. Network connectivity between nodes
 4. Firewall allows incoming webhooks
-5. Check Directus logs for errors
+5. Check talaan_chain_system logs for errors
 
 ---
 
@@ -445,7 +445,7 @@ WHERE talaan_id NOT IN (SELECT talaan_id FROM talaan_mirror);
 
 **Cause:** Entry sent twice with same `talaan_id`
 
-**Solution:** This is expected! Directus unique constraint prevents duplicates. The 409 error can be ignored.
+**Solution:** This is expected! talaan_chain_system unique constraint prevents duplicates. The 409 error can be ignored.
 
 ---
 

@@ -1,4 +1,4 @@
-# Directus Flow: Talaan Chain Monitor
+# talaan_chain_system Flow: Talaan Chain Monitor
 
 Quick validation of latest entry plus 10 parent levels for chain integrity checking.
 
@@ -92,7 +92,7 @@ flowchart TD
 **Name:** Trigger Validation
 
 **For Manual Trigger:**
-- Add a button in Directus admin UI
+- Add a button in talaan_chain_system admin UI
 - Users can click to validate on-demand
 
 **For Scheduled Trigger:**
@@ -180,7 +180,7 @@ Reached Genesis: {{$validate_script.reached_genesis}}
 Invalid Entries: {{$validate_script.invalid}}
 ```
 
-**What it does:** Displays validation results in Directus logs.
+**What it does:** Displays validation results in talaan_chain_system logs.
 
 ---
 
@@ -220,7 +220,7 @@ Add these operations for active error detection and incident tracking.
 
 **What it does:** Branches flow based on validation result - no additional script needed!
 
-**Note:** Configure directly in Directus UI. The JSON files are for reference only.
+**Note:** Configure directly in talaan_chain_system UI. The JSON files are for reference only.
 
 ---
 
@@ -462,8 +462,8 @@ Invalid Entries: {{$validate_script.invalid.length}}
 Summary:
 {{$validate_script.summary}}
 
-Details available in Directus:
-https://your-directus.com/admin/content/talaan_incidents/{{$create_incident.id}}
+Details available in talaan_chain_system:
+https://your-talaan_chain_system.com/admin/content/talaan_incidents/{{$create_incident.id}}
 
 ACTION REQUIRED: Immediate investigation
 ```
@@ -480,7 +480,7 @@ ACTION REQUIRED: Immediate investigation
   "summary": "{{$validate_script.summary}}",
   "invalid_count": {{$validate_script.invalid.length}},
   "incident_id": "{{$create_incident.id}}",
-  "details_url": "https://your-directus.com/admin/content/talaan_incidents/{{$create_incident.id}}"
+  "details_url": "https://your-talaan_chain_system.com/admin/content/talaan_incidents/{{$create_incident.id}}"
 }
 ```
 

@@ -182,7 +182,7 @@ Semantic error codes for Talaan Chain validation system.
 
 ## Usage in Code
 
-### Condition Check (Directus Flow)
+### Condition Check (talaan_chain_system Flow)
 ```javascript
 // Simple check
 {{$validate_script.status}} == "VALID"
@@ -216,7 +216,7 @@ if (result.code === 'CHAIN_FORK_DETECTED') {
 
 ---
 
-## Recommended Condition for Directus
+## Recommended Condition for talaan_chain_system
 
 **Use this in your `check_status` condition:**
 

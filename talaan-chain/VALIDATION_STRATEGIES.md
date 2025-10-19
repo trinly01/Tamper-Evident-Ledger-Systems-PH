@@ -36,7 +36,7 @@ graph LR
 
 Validates the most recent entry and traces back 10 levels through parents.
 
-### Directus Flow Setup:
+### talaan_chain_system Flow Setup:
 
 **Flow Name:** `validate_latest_chain`  
 **Trigger:** Manual or Schedule (every hour)
@@ -100,7 +100,7 @@ graph TD
 
 Randomly picks 10 entries and validates each one's complete chain to genesis.
 
-### Directus Flow Setup:
+### talaan_chain_system Flow Setup:
 
 **Flow Name:** `validate_random_sample`  
 **Trigger:** Schedule (daily at 2 AM)
@@ -162,7 +162,7 @@ graph LR
 
 Validates only the most recent 100 entries (configurable).
 
-### Directus Flow Setup:
+### talaan_chain_system Flow Setup:
 
 **Flow Name:** `validate_recent_window`  
 **Trigger:** Schedule (every 30 minutes)
@@ -209,7 +209,7 @@ Validates only the most recent 100 entries (configurable).
 ### How It Works:
 Validates every single entry in the chain - comprehensive but slow.
 
-### Directus Flow Setup:
+### talaan_chain_system Flow Setup:
 
 Use the existing [`verify_chain_tree.js`](flows/validator/verify_chain_tree.js) script.
 

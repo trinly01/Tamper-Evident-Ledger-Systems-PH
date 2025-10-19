@@ -1,4 +1,4 @@
-# Directus Flow: Talaan Chain Logger
+# talaan_chain_system Flow: Talaan Chain Logger
 
 Automatically logs all CRUD events to the tamper-evident chain.
 
@@ -180,7 +180,7 @@ flowchart TD
 ```
 
 **Configuration:**
-- Secret: Shared across all nodes (configured in Directus settings)
+- Secret: Shared across all nodes (configured in talaan_chain_system settings)
 - Algorithm: HS256 (default)
 - Expiration: 60 seconds (recommended for near-instant replication)
 
@@ -305,7 +305,7 @@ Body:
    - `payload`: New event data
 
 ### 4. Verify Logs
-Check Directus logs for:
+Check talaan_chain_system logs for:
 ```
 ✅ Chain entry created
    Hash: abc12345

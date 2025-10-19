@@ -1,6 +1,6 @@
 # Flow Scripts
 
-This directory contains the scripts and configurations for the Talaan Chain Directus flow.
+This directory contains the scripts and configurations for the Talaan Chain talaan_chain_system flow.
 
 ## Files
 
@@ -23,7 +23,7 @@ This directory contains the scripts and configurations for the Talaan Chain Dire
 
 **See [VALIDATION_STRATEGIES.md](../VALIDATION_STRATEGIES.md) for detailed usage and scheduling recommendations.**
 
-## Usage in Directus
+## Usage in talaan_chain_system
 
 ### Complete Flow Guides
 
@@ -81,7 +81,7 @@ This directory contains the scripts and configurations for the Talaan Chain Dire
 
 ## Important Notes
 
-- All scripts use **plain JavaScript** (not TypeScript) for Directus compatibility
+- All scripts use **plain JavaScript** (not TypeScript) for talaan_chain_system compatibility
 - Genesis hash is `"likha_genesis"`
 - Hash algorithm: FNV-1a (non-cryptographic, optimized for speed)
 - Tree/DAG structure prevents race conditions

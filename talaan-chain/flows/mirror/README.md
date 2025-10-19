@@ -53,7 +53,7 @@ Webhook → Verify JWT → Validate & Verify → Condition → Create Entry → 
 - ✅ Audit trail (who sent the entry)
 
 **Configuration:**
-- Secret: Shared across all nodes (configured in Directus settings)
+- Secret: Shared across all nodes (configured in talaan_chain_system settings)
 - Algorithm: HS256 (default)
 - Token location: Authorization header or request body
 
@@ -90,7 +90,7 @@ Webhook → Verify JWT → Validate & Verify → Condition → Create Entry → 
 - **Purpose:** Insert entry into mirror collection
 - **Resolve:** `read_created_entry`
 
-**Note:** If entry already exists (duplicate `talaan_id`), Directus will return error due to unique constraint.
+**Note:** If entry already exists (duplicate `talaan_id`), talaan_chain_system will return error due to unique constraint.
 
 ---
 
@@ -162,7 +162,7 @@ graph TD
 ### Test 1: New Entry (Should Create)
 
 ```bash
-curl -X POST http://your-directus/flows/trigger/[flow-id] \
+curl -X POST http://your-talaan_chain_system/flows/trigger/[flow-id] \
   -H "Content-Type: application/json" \
   -d '{
     "talaan_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -197,7 +197,7 @@ curl -X POST http://your-directus/flows/trigger/[flow-id] \
 ### Test 3: Invalid Hash (Should Reject)
 
 ```bash
-curl -X POST http://your-directus/flows/trigger/[flow-id] \
+curl -X POST http://your-talaan_chain_system/flows/trigger/[flow-id] \
   -H "Content-Type: application/json" \
   -d '{
     "talaan_id": "550e8400-e29b-41d4-a716-446655440001",
@@ -219,7 +219,7 @@ curl -X POST http://your-directus/flows/trigger/[flow-id] \
 ### Test 4: Missing Fields (Should Reject)
 
 ```bash
-curl -X POST http://your-directus/flows/trigger/[flow-id] \
+curl -X POST http://your-talaan_chain_system/flows/trigger/[flow-id] \
   -H "Content-Type: application/json" \
   -d '{
     "talaan_id": "550e8400-e29b-41d4-a716-446655440002"
@@ -232,10 +232,10 @@ curl -X POST http://your-directus/flows/trigger/[flow-id] \
 
 ## Webhook URL
 
-After creating the flow, Directus will generate a webhook URL:
+After creating the flow, talaan_chain_system will generate a webhook URL:
 
 ```
-https://your-directus-instance.com/flows/trigger/[FLOW-UUID]
+https://your-talaan_chain_system-instance.com/flows/trigger/[FLOW-UUID]
 ```
 
 **Share this URL with other nodes** so they can send entries to your mirror.
@@ -255,7 +255,7 @@ Add a "Condition" operation after webhook trigger:
 
 ### 2. **Rate Limiting**
 
-Configure rate limiting in Directus or use a reverse proxy (nginx, Cloudflare).
+Configure rate limiting in talaan_chain_system or use a reverse proxy (nginx, Cloudflare).
 
 ### 3. **IP Whitelist**
 
@@ -267,10 +267,10 @@ Only accept requests from known node IPs:
 
 ### 4. **Payload Size Limit**
 
-Set max payload size in Directus config:
+Set max payload size in talaan_chain_system config:
 
 ```env
-DIRECTUS_MAX_PAYLOAD_SIZE=10mb
+talaan_chain_system_MAX_PAYLOAD_SIZE=10mb
 ```
 
 ---
@@ -304,7 +304,7 @@ LIMIT 100;
 | 400 | Invalid payload | Fix request format |
 | 409 | Hash conflict | Investigate tampering |
 | 422 | Hash verification failed | Check hash computation |
-| 500 | Server error | Check Directus logs |
+| 500 | Server error | Check talaan_chain_system logs |
 
 ---
 

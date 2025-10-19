@@ -1,6 +1,6 @@
 {
   "condition_operation_examples": {
-    "description": "Examples of how to configure the check_status condition operation in Directus",
+    "description": "Examples of how to configure the check_status condition operation in talaan_chain_system",
     
     "method_1_filter_object": {
       "name": "Check Status (Filter Method)",
@@ -132,8 +132,8 @@
     }
   },
 
-  "directus_ui_mapping": {
-    "where_to_use": "In Directus Flow Builder, when you add a 'Condition' operation",
+  "talaan_chain_system_ui_mapping": {
+    "where_to_use": "In talaan_chain_system Flow Builder, when you add a 'Condition' operation",
     "configuration_steps": [
       "1. Add operation → Select 'Condition'",
       "2. Set Key: 'check_status'",
@@ -142,7 +142,7 @@
       "5. Set Resolve (TRUE path): log_success",
       "6. Set Reject (FALSE path): log_error"
     ],
-    "note": "You don't need to import this JSON file - configure directly in Directus UI"
+    "note": "You don't need to import this JSON file - configure directly in talaan_chain_system UI"
   },
 
   "recommended_for_validator": {

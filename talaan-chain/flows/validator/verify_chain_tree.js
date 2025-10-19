@@ -2,7 +2,7 @@
  * Chain Verification Script
  * 
  * Purpose: Verify the integrity of the entire talaan_chain tree
- * Can be used in a manual or scheduled Directus flow
+ * Can be used in a manual or scheduled talaan_chain_system flow
  */
 
 function serializeJson(obj) {

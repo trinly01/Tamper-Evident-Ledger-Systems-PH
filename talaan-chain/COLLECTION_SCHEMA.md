@@ -1,6 +1,6 @@
 # `talaan_chain` Collection Schema
 
-Complete Directus collection schema for the Talaan Chain tamper-evident ledger system.
+Complete talaan_chain_system collection schema for the Talaan Chain tamper-evident ledger system.
 
 ---
 
@@ -8,20 +8,20 @@ Complete Directus collection schema for the Talaan Chain tamper-evident ledger s
 
 | Field | Type | Special | Description |
 |-------|------|---------|-------------|
-| `id` | UUID | Primary Key, Auto | Database ID (Directus auto-generated) |
+| `id` | UUID | Primary Key, Auto | Database ID (talaan_chain_system auto-generated) |
 | `sequence` | Integer | Auto-increment, Unique | Ledger entry number (1, 2, 3...) |
 | `parent_id` | UUID | Foreign Key → `id`, Nullable | References parent entry (NULL for genesis) |
 | `parent_hash` | String(8) | Required, Indexed | Hash of parent entry ("likha_genesis" for genesis) |
 | `current_hash` | String(8) | Required, Indexed | Hash of this entry |
 | `payload` | JSON | Required | Event data (trigger + accountability) |
 | `date_created` | Timestamp | Auto | When entry was created |
-| `date_updated` | Timestamp | Auto | When entry was updated (for Directus) |
-| `user_created` | UUID | Auto | User who created (from Directus) |
-| `user_updated` | UUID | Auto | User who updated (from Directus) |
+| `date_updated` | Timestamp | Auto | When entry was updated (for talaan_chain_system) |
+| `user_created` | UUID | Auto | User who created (from talaan_chain_system) |
+| `user_updated` | UUID | Auto | User who updated (from talaan_chain_system) |
 
 ---
 
-## Directus Collection Setup
+## talaan_chain_system Collection Setup
 
 ### Step 1: Create Collection
 
@@ -50,7 +50,7 @@ Complete Directus collection schema for the Talaan Chain tamper-evident ledger s
    - Font: Monospace
 7. Save
 
-**Result:** Directus will auto-generate: 1, 2, 3, 4, 5...
+**Result:** talaan_chain_system will auto-generate: 1, 2, 3, 4, 5...
 
 ---
 
@@ -114,11 +114,11 @@ Complete Directus collection schema for the Talaan Chain tamper-evident ledger s
 
 ### Step 7: System Fields (Auto-configured)
 
-Directus automatically adds:
+talaan_chain_system automatically adds:
 - `date_created` (timestamp)
 - `date_updated` (timestamp)
-- `user_created` (UUID → directus_users)
-- `user_updated` (UUID → directus_users)
+- `user_created` (UUID → talaan_chain_system_users)
+- `user_updated` (UUID → talaan_chain_system_users)
 
 Keep these for audit trail!
 
@@ -225,7 +225,7 @@ CREATE INDEX idx_talaan_date_created ON talaan_chain(date_created);
 CREATE INDEX idx_talaan_parent_id ON talaan_chain(parent_id);
 ```
 
-Directus may auto-create some of these. Verify in your database.
+talaan_chain_system may auto-create some of these. Verify in your database.
 
 ---
 
@@ -311,7 +311,7 @@ assert(hashRegex.test(entry.parent_hash) || entry.parent_hash === "likha_genesis
 
 ## Permissions
 
-**Recommended Directus permissions for `talaan_chain`:**
+**Recommended talaan_chain_system permissions for `talaan_chain`:**
 
 | Role | Create | Read | Update | Delete |
 |------|--------|------|--------|--------|

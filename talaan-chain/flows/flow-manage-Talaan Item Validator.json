@@ -19,7 +19,7 @@
       "position_y": 1,
       "options": {
         "sql": "SELECT *\n  FROM talaan_chain\n  WHERE \n    (payload->'$trigger'->>'key' = ? OR\n     payload->'$trigger'->'keys' @> ?)\n  ORDER BY date_created DESC;",
-        "code": "SELECT * FROM directus_users WHERE id = ?;",
+        "code": "SELECT * FROM talaan_chain_system_users WHERE id = ?;",
         "data": [
           "asd"
         ],

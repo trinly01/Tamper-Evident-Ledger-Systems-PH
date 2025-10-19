@@ -10,11 +10,11 @@
 
 | Document | Description |
 |----------|-------------|
-| **[COLLECTION_SCHEMA.md](COLLECTION_SCHEMA.md)** | Complete Directus collection setup guide with field definitions |
+| **[COLLECTION_SCHEMA.md](COLLECTION_SCHEMA.md)** | Complete talaan_chain_system collection setup guide with field definitions |
 | **[ARCHITECTURE.md](ARCHITECTURE.md)** | Complete technical documentation, system design, and implementation details |
 | **[MULTI_NODE_ARCHITECTURE.md](MULTI_NODE_ARCHITECTURE.md)** | 🌐 Multi-node/distributed setup guide with replication |
 | **[VALIDATION_STRATEGIES.md](VALIDATION_STRATEGIES.md)** | Validation approaches, performance comparisons, and scheduling recommendations |
-| **[flows/README.md](flows/README.md)** | Directus flows overview and quick start guide |
+| **[flows/README.md](flows/README.md)** | talaan_chain_system flows overview and quick start guide |
 
 ---
 
@@ -161,7 +161,7 @@ talaan-chain/
 ├── ARCHITECTURE.md                # Complete technical documentation
 ├── MULTI_NODE_ARCHITECTURE.md     # Distributed ledger guide
 ├── VALIDATION_STRATEGIES.md       # Validation approaches
-├── flows/                         # Directus flows
+├── flows/                         # talaan_chain_system flows
 │   ├── README.md                  # Flows overview
 │   ├── logger/                    # Chain creation flow (8 ops with JWT)
 │   │   ├── README.md
