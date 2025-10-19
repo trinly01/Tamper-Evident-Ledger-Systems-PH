@@ -1,0 +1,114 @@
+{
+  "id": "5c33e76c-3703-492b-9e71-5327f9ace0a2",
+  "name": "Talaan Mirror Receiver",
+  "icon": "bolt",
+  "color": null,
+  "description": null,
+  "trigger": "webhook",
+  "options": {
+    "method": "POST",
+    "error_on_reject": true
+  },
+  "operation": "9b1578ad-78fe-4f80-b38f-9d383f9a7d42",
+  "operations": [
+    {
+      "id": "135bc1d9-d13e-448a-a414-831ed3ea18e3",
+      "name": "throw_error",
+      "key": "throw_error",
+      "type": "throw-error",
+      "position_x": 33,
+      "position_y": 36,
+      "options": {
+        "code": "INVALID_CHAIN",
+        "status": "500",
+        "message": "INVALID_CHAIN"
+      },
+      "resolve": null,
+      "reject": null
+    },
+    {
+      "id": "36a68a63-df51-4091-926a-a80b20c8492c",
+      "name": "validate_and_verify",
+      "key": "validate_and_verify",
+      "type": "exec",
+      "position_x": 60,
+      "position_y": 1,
+      "options": {
+        "code": "/**\n * Validate & Verify Hash - Talaan Mirror Receiver\n * \n * Combined validation: checks payload structure AND verifies hash\n */\n\nfunction serializeJson(obj) {\n  return JSON.stringify(obj, (key, value) => {\n    if (value && typeof value === 'object' && !Array.isArray(value)) {\n      return Object.keys(value)\n        .sort()\n        .reduce((sorted, key) => {\n          sorted[key] = value[key];\n          return sorted;\n        }, {});\n    }\n    return value;\n  });\n}\n\nfunction fnv1aHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash = Math.imul(hash, 16777619);\n  }\n  return (hash >>> 0).toString(16).padStart(8, '0');\n}\n\nfunction hashJson(json) {\n  return fnv1aHash(serializeJson(json));\n}\n\nmodule.exports = async function(data) {\n  const { $trigger } = data;\n  const body = $trigger.body;\n  \n  // 1. VALIDATE STRUCTURE\n  \n  // Check required fields\n  const required = ['talaan_id', 'parent_id', 'parent_hash', 'current_hash', 'payload'];\n  const missing = required.filter(field => body[field] === undefined);\n  \n  if (missing.length > 0) {\n    return {\n      $trigger,\n      valid: false,\n      error: 'MISSING_FIELDS',\n      message: `Missing required fields: ${missing.join(', ')}`,\n      status: 400\n    };\n  }\n  \n  // Validate UUID format for talaan_id\n  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;\n  if (!uuidRegex.test(body.talaan_id)) {\n    return {\n      valid: false,\n      error: 'INVALID_TALAAN_ID',\n      message: 'talaan_id must be a valid UUID',\n      status: 400\n    };\n  }\n  \n  // Validate hash format (8-char hex)\n  const hashRegex = /^[0-9a-f]{8}$/;\n  if (!hashRegex.test(body.current_hash)) {\n    return {\n      valid: false,\n      error: 'INVALID_HASH_FORMAT',\n      message: 'current_hash must be 8-character hex',\n      status: 400\n    };\n  }\n  \n  // Validate parent_hash\n  if (body.parent_hash !== 'likha_genesis' && !hashRegex.test(body.parent_hash)) {\n    return {\n      valid: false,\n      error: 'INVALID_PARENT_HASH',\n      message: 'parent_hash must be 8-character hex or \"likha_genesis\"',\n      status: 400\n    };\n  }\n  \n  // Validate payload is object\n  if (typeof body.payload !== 'object' || body.payload === null) {\n    return {\n      valid: false,\n      error: 'INVALID_PAYLOAD',\n      message: 'payload must be a JSON object',\n      status: 400\n    };\n  }\n  \n  // 2. VERIFY HASH\n  \n  // Compute expected hash\n  const payload_hash = hashJson(body.payload);\n  const computed_hash = hashJson({\n    parent: body.parent_hash,\n    payload: payload_hash\n  });\n  \n  // Check if hash matches\n  if (computed_hash !== body.current_hash) {\n    return {\n      valid: false,\n      error: 'HASH_MISMATCH',\n      message: `Hash verification failed. Expected: ${computed_hash}, Got: ${body.current_hash}`,\n      status: 422\n    };\n  }\n  \n  // 3. ALL VALID\n  return {\n    valid: true,\n    entry: body\n  };\n}\n\n"
+      },
+      "resolve": "f4963c99-4a14-4aae-8d06-ebaa85809b49",
+      "reject": null
+    },
+    {
+      "id": "6a8901f2-6145-4967-a196-cf5799ce8aab",
+      "name": "create_chain_entry",
+      "key": "create_chain_entry",
+      "type": "item-create",
+      "position_x": 33,
+      "position_y": 19,
+      "options": {
+        "permissions": "$full",
+        "emitEvents": false,
+        "collection": "talaan_mirror",
+        "payload": "{{validate_and_verify.entry}}"
+      },
+      "resolve": "72488b66-492e-4d89-b2fe-726213e890f0",
+      "reject": null
+    },
+    {
+      "id": "72488b66-492e-4d89-b2fe-726213e890f0",
+      "name": "read_created_entry",
+      "key": "read_created_entry",
+      "type": "item-read",
+      "position_x": 56,
+      "position_y": 19,
+      "options": {
+        "permissions": "$full",
+        "emitEvents": false,
+        "collection": "talaan_mirror",
+        "key": [
+          "{{create_chain_entry[0]}}"
+        ]
+      },
+      "resolve": null,
+      "reject": null
+    },
+    {
+      "id": "9b1578ad-78fe-4f80-b38f-9d383f9a7d42",
+      "name": "verify_jwt",
+      "key": "verify_jwt",
+      "type": "json-web-token",
+      "position_x": 30,
+      "position_y": 1,
+      "options": {
+        "operation": "verify",
+        "payload": null,
+        "secret": "pogi",
+        "token": "{{$trigger.headers.authorization}}"
+      },
+      "resolve": "36a68a63-df51-4091-926a-a80b20c8492c",
+      "reject": null
+    },
+    {
+      "id": "f4963c99-4a14-4aae-8d06-ebaa85809b49",
+      "name": "Condition",
+      "key": "condition_67ihs",
+      "type": "condition",
+      "position_x": 15,
+      "position_y": 19,
+      "options": {
+        "filter": {
+          "validate_and_verify": {
+            "valid": {
+              "_eq": true
+            }
+          }
+        }
+      },
+      "resolve": "6a8901f2-6145-4967-a196-cf5799ce8aab",
+      "reject": "135bc1d9-d13e-448a-a414-831ed3ea18e3"
+    }
+  ],
+  "flow_manager_category": "BDVmcqv6u8",
+  "accountability": "all"
+}

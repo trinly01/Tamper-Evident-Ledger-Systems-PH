@@ -1,0 +1,135 @@
+{
+  "id": "7fd98b04-7951-44eb-a716-29c21a9ddd8f",
+  "name": "Talaan Chain Logger",
+  "icon": "bolt",
+  "color": null,
+  "description": null,
+  "trigger": "event",
+  "options": {
+    "type": "action",
+    "scope": [
+      "items.create",
+      "items.update",
+      "items.delete",
+      "items.promote"
+    ],
+    "collections": [
+      "test_table"
+    ]
+  },
+  "operation": "5a861967-6216-40ff-b0e6-55a6501934be",
+  "operations": [
+    {
+      "id": "1ab5fbcc-e858-42d3-af58-9cca7eef8e9d",
+      "name": "sign_jwt",
+      "key": "sign_jwt",
+      "type": "json-web-token",
+      "position_x": 19,
+      "position_y": 38,
+      "options": {
+        "operation": "sign",
+        "payload": "{{read_created_entry}}",
+        "secret": "pogi"
+      },
+      "resolve": "441fb907-31cd-4626-892d-0a376f74f879",
+      "reject": null
+    },
+    {
+      "id": "441fb907-31cd-4626-892d-0a376f74f879",
+      "name": "send_chain_entry",
+      "key": "send_chain_entry",
+      "type": "request",
+      "position_x": 39,
+      "position_y": 38,
+      "options": {
+        "method": "POST",
+        "url": "http://localhost:8055/flows/trigger/5c33e76c-3703-492b-9e71-5327f9ace0a2",
+        "body": "{{read_created_entry}}",
+        "headers": [
+          {
+            "header": "Authorization",
+            "value": "{{sign_jwt}}"
+          }
+        ]
+      },
+      "resolve": null,
+      "reject": null
+    },
+    {
+      "id": "5a861967-6216-40ff-b0e6-55a6501934be",
+      "name": "read_parent_entry",
+      "key": "read_parent_entry",
+      "type": "item-read",
+      "position_x": 23,
+      "position_y": 1,
+      "options": {
+        "permissions": "$full",
+        "emitEvents": false,
+        "collection": "talaan_chain",
+        "query": {
+          "query": {
+            "sort": [
+              "-created_at"
+            ],
+            "limit": 1,
+            "fields": [
+              "id",
+              "current_hash"
+            ]
+          }
+        }
+      },
+      "resolve": "670c3a57-5840-4e67-90cc-01c94952708a",
+      "reject": null
+    },
+    {
+      "id": "670c3a57-5840-4e67-90cc-01c94952708a",
+      "name": "generate_chain_entry",
+      "key": "generate_chain_entry",
+      "type": "exec",
+      "position_x": 5,
+      "position_y": 19,
+      "options": {
+        "code": "/**\n * Deterministically serializes a JSON object using JSON.stringify with sorted keys\n * This ensures the same object always produces the same string\n */\nfunction serializeJson(obj) {\n  return JSON.stringify(obj, (key, value) => {\n    // Sort object keys to ensure consistent ordering\n    if (value && typeof value === 'object' && !Array.isArray(value)) {\n      return Object.keys(value)\n        .sort()\n        .reduce((sorted, key) => {\n          sorted[key] = value[key];\n          return sorted;\n        }, {});\n    }\n    return value;\n  });\n}\n\n/**\n * FNV-1a hash algorithm - fast non-cryptographic hash\n */\nfunction fnv1aHash(str) {\n  let hash = 2166136261; // FNV offset basis (32-bit)\n  \n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash = Math.imul(hash, 16777619); // FNV prime\n  }\n  \n  // Convert to unsigned 32-bit hex string\n  return (hash >>> 0).toString(16).padStart(8, '0');\n}\n\nfunction hashJson(json) {\n  const serialized = serializeJson(json);\n  return fnv1aHash(serialized);\n}\n\n// Main flow operation\nmodule.exports = async function(data) {\n  const { $trigger, $accountability, read_parent_entry } = data;\n  \n  const parent_id = read_parent_entry && read_parent_entry.length > 0 \n    ? read_parent_entry[0].talaan_id \n    : null;\n    \n  const parent_hash = read_parent_entry && read_parent_entry.length > 0 \n    ? read_parent_entry[0].current_hash \n    : \"likha_genesis\";\n    \n  const payload = {\n    $trigger,\n    $accountability\n  };\n    \n  const payload_hash = hashJson(payload);\n  const current_hash = hashJson({\n    parent: parent_hash,\n    payload: payload_hash\n  });\n  \n  return {\n    parent_id,\n    parent_hash,\n    current_hash,\n    payload\n  };\n}"
+      },
+      "resolve": "b2223188-0411-4779-a8c5-41f04e00a0fb",
+      "reject": null
+    },
+    {
+      "id": "b2223188-0411-4779-a8c5-41f04e00a0fb",
+      "name": "create_chain_entry",
+      "key": "create_chain_entry",
+      "type": "item-create",
+      "position_x": 23,
+      "position_y": 19,
+      "options": {
+        "permissions": "$full",
+        "emitEvents": false,
+        "collection": "talaan_chain",
+        "payload": "{{generate_chain_entry}}"
+      },
+      "resolve": "c0505701-b1ac-48f8-8635-e1e369782e5e",
+      "reject": null
+    },
+    {
+      "id": "c0505701-b1ac-48f8-8635-e1e369782e5e",
+      "name": "read_created_entry",
+      "key": "read_created_entry",
+      "type": "item-read",
+      "position_x": 41,
+      "position_y": 19,
+      "options": {
+        "permissions": "$full",
+        "emitEvents": false,
+        "collection": "talaan_chain",
+        "key": [
+          "{{create_chain_entry[0]}}"
+        ]
+      },
+      "resolve": "1ab5fbcc-e858-42d3-af58-9cca7eef8e9d",
+      "reject": null
+    }
+  ],
+  "flow_manager_category": "BDVmcqv6u8",
+  "accountability": "all"
+}

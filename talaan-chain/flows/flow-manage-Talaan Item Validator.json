@@ -1,0 +1,50 @@
+{
+  "id": "22aef83f-6cf1-47ac-86fe-e4527e8ffa41",
+  "name": "Talaan Item Validator",
+  "icon": "bolt",
+  "color": null,
+  "description": null,
+  "trigger": "webhook",
+  "options": {
+    "error_on_reject": true
+  },
+  "operation": "58c9a715-4563-41bf-829b-d2c4ceb1f084",
+  "operations": [
+    {
+      "id": "58c9a715-4563-41bf-829b-d2c4ceb1f084",
+      "name": "sql_get_chain",
+      "key": "sql_get_chain",
+      "type": "likha_sql",
+      "position_x": 20,
+      "position_y": 1,
+      "options": {
+        "sql": "SELECT *\n  FROM talaan_chain\n  WHERE \n    (payload->'$trigger'->>'key' = ? OR\n     payload->'$trigger'->'keys' @> ?)\n  ORDER BY date_created DESC;",
+        "code": "SELECT * FROM directus_users WHERE id = ?;",
+        "data": [
+          "asd"
+        ],
+        "binding": [
+          "{{$trigger.query.id}}",
+          "[\"{{$trigger.query.id}}\"]"
+        ]
+      },
+      "resolve": "cdaf1e99-6aa8-4f63-a106-a054ec61e96c",
+      "reject": null
+    },
+    {
+      "id": "cdaf1e99-6aa8-4f63-a106-a054ec61e96c",
+      "name": "script_assemble_data",
+      "key": "script_assemble_data",
+      "type": "exec",
+      "position_x": 39,
+      "position_y": 1,
+      "options": {
+        "code": "/**\n * Chain Data Assembler - Validates hashes and builds final data\n * \n * This script:\n * 1. Validates all chain entry hashes (current_hash)\n * 2. Assembles data from payloads in chronological order\n * 3. Throws error if any hash validation fails\n * 4. Returns assembled data with collection info\n */\n\nfunction serializeJson(obj) {\n  return JSON.stringify(obj, (key, value) => {\n    if (value && typeof value === 'object' && !Array.isArray(value)) {\n      return Object.keys(value)\n        .sort()\n        .reduce((sorted, key) => {\n          sorted[key] = value[key];\n          return sorted;\n        }, {});\n    }\n    return value;\n  });\n}\n\nfunction fnv1aHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash = Math.imul(hash, 16777619);\n  }\n  return (hash >>> 0).toString(16).padStart(8, '0');\n}\n\nfunction hashJson(json) {\n  return fnv1aHash(serializeJson(json));\n}\n\nfunction validateSingleEntry(entry) {\n  const payload_hash = hashJson(entry.payload);\n  const computed_hash = hashJson({\n    parent: entry.parent_hash,\n    payload: payload_hash\n  });\n  \n  return computed_hash === entry.current_hash;\n}\n\nfunction extractKeyAndCollection(payload) {\n  if (payload && typeof payload === 'object') {\n    // Extract key from $trigger\n    if (payload.$trigger && payload.$trigger.key) {\n      return {\n        key: payload.$trigger.key,\n        collection: payload.$trigger.collection\n      };\n    }\n    \n    // Fallback to checking for keys array\n    if (payload.$trigger && payload.$trigger.keys && payload.$trigger.keys.length > 0) {\n      return {\n        key: payload.$trigger.keys[0],\n        collection: payload.$trigger.collection\n      };\n    }\n  }\n  \n  return null;\n}\n\nfunction extractCollectionAndKey(payload) {\n  if (!payload || typeof payload !== 'object') return null;\n  \n  const trigger = payload.$trigger;\n  if (!trigger || typeof trigger !== 'object') return null;\n  \n  return {\n    collection: trigger.collection,\n    key: trigger.keys?.[0] || trigger.key\n  };\n}\n\nmodule.exports = async function(data) {\n  const rows = data.sql_get_chain.rows;\n  \n  if (!rows || rows.length === 0) {\n    throw new Error('No entries in chain yet');\n  }\n  \n  // Validate all entries first\n  for (const entry of rows) {\n    if (!validateSingleEntry(entry)) {\n      throw new Error(`Invalid hash at entry ${entry.talaan_id}`);\n    }\n  }\n  \n  // Build lookup map\n  const entryMap = {};\n  rows.forEach(entry => {\n    entryMap[entry.talaan_id] = entry;\n  });\n  \n  // Assemble data from latest to earliest (reverse order)\n  let assembledData = {};\n  let collection = null;\n  let key = null;\n  \n  // Process entries in reverse chronological order\n  for (const entry of rows) {\n    const payload = entry.payload;\n    \n    // Extract collection and key information\n    if (!collection || !key) {\n      const extracted = extractCollectionAndKey(payload);\n      if (extracted) {\n        collection = extracted.collection;\n        key = extracted.key;\n      }\n    }\n    \n    // Merge payload data into assembledData\n    if (payload && typeof payload === 'object') {\n      // Extract dynamic fields from $trigger.payload if exists\n      const triggerPayload = payload.$trigger?.payload;\n      if (triggerPayload && typeof triggerPayload === 'object') {\n        for (const [k, v] of Object.entries(triggerPayload)) {\n          assembledData[k] = v;\n        }\n      }\n      \n      // Merge other top-level fields from payload\n      for (const [k, v] of Object.entries(payload)) {\n        if (k !== '$trigger' && k !== '$accountability') {\n          assembledData[k] = v;\n        }\n      }\n    }\n  }\n  \n  // Validate that we found collection and key\n  if (!collection || !key) {\n    throw new Error('Could not extract collection or key from payload');\n  }\n  \n  return {\n    assembledData,\n    collection,\n    key\n  };\n}\n\n\n"
+      },
+      "resolve": null,
+      "reject": null
+    }
+  ],
+  "flow_manager_category": "BDVmcqv6u8",
+  "accountability": "all"
+}

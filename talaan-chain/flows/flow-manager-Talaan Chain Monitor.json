@@ -1,0 +1,90 @@
+{
+  "id": "1fb0f548-2df1-4406-abf3-abffa666e3c0",
+  "name": "Talaan Chain Monitor",
+  "icon": "bolt",
+  "color": null,
+  "description": null,
+  "trigger": "schedule",
+  "options": {
+    "cron": "*/15 * * * * *"
+  },
+  "operation": "9959ebf9-ed8f-4d40-9d6f-d107a214d09a",
+  "operations": [
+    {
+      "id": "70bd160c-fac0-4aa0-9dc4-889113c03aec",
+      "name": "check_status",
+      "key": "check_status",
+      "type": "condition",
+      "position_x": 55,
+      "position_y": 1,
+      "options": {
+        "filter": {
+          "validate_script": {
+            "status": {
+              "_eq": "valid"
+            }
+          }
+        }
+      },
+      "resolve": null,
+      "reject": "a373166b-4a3f-46a0-aae6-b882c6e06546"
+    },
+    {
+      "id": "9959ebf9-ed8f-4d40-9d6f-d107a214d09a",
+      "name": "read_recent_50",
+      "key": "read_recent_50",
+      "type": "item-read",
+      "position_x": 19,
+      "position_y": 1,
+      "options": {
+        "permissions": "$trigger",
+        "emitEvents": false,
+        "collection": "talaan_chain",
+        "query": {
+          "query": {
+            "sort": [
+              "-created_at"
+            ],
+            "limit": 50,
+            "fields": [
+              "id",
+              "current_hash"
+            ]
+          }
+        }
+      },
+      "resolve": "bfbf9864-4f30-40c3-8e0f-e4a281aab46e",
+      "reject": null
+    },
+    {
+      "id": "a373166b-4a3f-46a0-aae6-b882c6e06546",
+      "name": "throw_error",
+      "key": "throw_error",
+      "type": "throw-error",
+      "position_x": 38,
+      "position_y": 20,
+      "options": {
+        "code": "INVALID_CHAIN",
+        "status": "500",
+        "message": "INVALID_CHAIN"
+      },
+      "resolve": null,
+      "reject": null
+    },
+    {
+      "id": "bfbf9864-4f30-40c3-8e0f-e4a281aab46e",
+      "name": "validate_script",
+      "key": "validate_script",
+      "type": "exec",
+      "position_x": 37,
+      "position_y": 1,
+      "options": {
+        "code": "/**\n * Lightweight Chain Validation - Latest Entry + Parent Chain\n * \n * Purpose: Quick validation of recent chain activity\n * Use: Frequent checks (every hour or on-demand)\n * \n * This validates the most recent entry and traces back through\n * parent relationships up to a specified depth.\n */\n\nfunction serializeJson(obj) {\n  return JSON.stringify(obj, (key, value) => {\n    if (value && typeof value === 'object' && !Array.isArray(value)) {\n      return Object.keys(value)\n        .sort()\n        .reduce((sorted, key) => {\n          sorted[key] = value[key];\n          return sorted;\n        }, {});\n    }\n    return value;\n  });\n}\n\nfunction fnv1aHash(str) {\n  let hash = 2166136261;\n  for (let i = 0; i < str.length; i++) {\n    hash ^= str.charCodeAt(i);\n    hash = Math.imul(hash, 16777619);\n  }\n  return (hash >>> 0).toString(16).padStart(8, '0');\n}\n\nfunction hashJson(json) {\n  return fnv1aHash(serializeJson(json));\n}\n\nfunction validateSingleEntry(entry) {\n  const payload_hash = hashJson(entry.payload);\n  const computed_hash = hashJson({\n    parent: entry.parent_hash,\n    payload: payload_hash\n  });\n  \n  return computed_hash === entry.current_hash;\n}\n\nmodule.exports = async function(data) {\n  const { read_recent_50 } = data;\n  const TRACE_DEPTH = 10; // Validate last 10 levels\n  \n  if (!read_recent_50 || read_recent_50.length === 0) {\n    return {\n      status: 'empty',\n      message: 'No entries in chain yet'\n    };\n  }\n  \n  const results = {\n    validated: 0,\n    invalid: [],\n    depth_reached: 0,\n    reached_genesis: false\n  };\n  \n  // Build lookup map from recent 50 entries using talaan_id\n  const entryMap = {};\n  read_recent_50.forEach(entry => {\n    entryMap[entry.talaan_id] = entry;\n  });\n  \n  // Trace back from latest entry (first in sorted array)\n  let current = read_recent_50[0];\n  let depth = 0;\n  \n  while (current && depth < TRACE_DEPTH) {\n    // Validate current entry\n    if (!validateSingleEntry(current)) {\n      results.invalid.push({\n        talaan_id: current.talaan_id,\n        depth: depth,\n        reason: 'Hash mismatch'\n      });\n      break;\n    }\n    \n    results.validated++;\n    results.depth_reached = depth + 1;\n    \n    // Check if we reached genesis\n    if (current.parent_id === null) {\n      // Verify genesis hash\n      if (current.parent_hash !== 'likha_genesis') {\n        results.invalid.push({\n          talaan_id: current.talaan_id,\n          depth: depth,\n          reason: 'Genesis hash should be \"likha_genesis\"'\n        });\n        break;\n      }\n      results.reached_genesis = true;\n      break;\n    }\n    \n    // Move to parent (parent_id stores parent's talaan_id)\n    const parent = entryMap[current.parent_id];\n    if (!parent) {\n      results.invalid.push({\n        talaan_id: current.talaan_id,\n        depth: depth,\n        reason: 'Parent not found',\n        parent_id: current.parent_id\n      });\n      break;\n    }\n    \n    // Verify parent hash matches\n    if (parent.current_hash !== current.parent_hash) {\n      results.invalid.push({\n        talaan_id: current.talaan_id,\n        depth: depth,\n        reason: 'Parent hash mismatch'\n      });\n      break;\n    }\n    \n    current = parent;\n    depth++;\n  }\n  \n  // Generate summary\n  const isValid = results.invalid.length === 0;\n  const summary = isValid\n    ? `✅ Valid! Checked ${results.validated} entries (depth: ${results.depth_reached})${results.reached_genesis ? ' to genesis' : ''}`\n    : `❌ Invalid! Found ${results.invalid.length} errors at depth ${results.invalid[0].depth}`;\n  \n  return {\n    read_recent_50,\n    status: isValid ? 'valid' : 'invalid',\n    summary: summary,\n    ...results\n  };\n}\n\n"
+      },
+      "resolve": "70bd160c-fac0-4aa0-9dc4-889113c03aec",
+      "reject": null
+    }
+  ],
+  "flow_manager_category": "BDVmcqv6u8",
+  "accountability": "all"
+}
