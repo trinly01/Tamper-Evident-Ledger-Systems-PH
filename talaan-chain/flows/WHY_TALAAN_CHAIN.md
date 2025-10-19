@@ -567,56 +567,9 @@ interface ChainEntry {
 - Node.js runtime
 -the system (or compatible workflow system)
 
-### Installation
-
-```bash
-# 1. Clone repository
-git clone https://github.com/yourusername/talaan-chain.git
-cd talaan-chain
-
-# 2. Install dependencies
-npm install
-
-# 3. Create database tables
-psql -d your_database -f schema.sql
-
-# 4. Import flows
-talaan_chain_system flows import flows/chain-logger.json
-talaan_chain_system flows import flows/mirror-receiver.json
-talaan_chain_system flows import flows/chain-monitor.json
-talaan_chain_system flows import flows/item-validator.json
-
-# 5. Configure environment
-cp .env.example .env
-# Edit .env with your settings
-```
-
-### Configuration
-
-```javascript
-// .env
-TALAAN_SECRET=your-secret-key-here
-TALAAN_MIRROR_URL_1=https://mirror1.example.com
-TALAAN_MIRROR_URL_2=https://mirror2.example.com
-TALAAN_VALIDATION_INTERVAL=15  // seconds
-```
-
 ### Deploy Mirrors
 
 Each independent validator runs the mirror receiver:
-
-```bash
-# On mirror server
-git clone https://github.com/yourusername/talaan-chain.git
-cd talaan-chain
-
-# Configure as mirror
-export TALAAN_MODE=mirror
-export TALAAN_PRIMARY_URL=https://primary.example.com
-
-# Start mirror receiver
-npm run start:mirror
-```
 
 ---
 
